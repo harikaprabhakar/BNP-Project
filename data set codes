@@ -1,0 +1,51 @@
+Script to create folder structure
+  import os
+
+folders = [
+    "frontend/public",
+    "frontend/src",
+    "backend/tests",
+    "data/raw",
+    "data/processed",
+    "docs/screenshots",
+    "model/saved_model"
+]
+
+files = {
+    "README.md": """# Innoversité Hackathon Project
+
+## Overview
+This repository contains the implementation of a comprehensive solution for the Innoversité Hackathon 2025 by BNP Paribas...
+
+## Features
+- Stock Price Prediction
+- AML Suspicious Transaction Detection
+- Big Data Processing
+
+## Approach
+1. Problem Understanding
+2. Data Preparation
+3. Model Development
+4. Web Application
+5. Testing and Evaluation
+6. Documentation and Submission
+
+## Tech Stack
+- Frontend: React, HTML, CSS, JavaScript
+- Backend: Python (Flask), Node.js
+- Machine Learning: Python (Scikit-learn, TensorFlow)
+- Big Data Processing: Java (Spring Boot)
+- Visualization: Chart.js, D3.js, Matplotlib
+
+## Setup Instructions
+### Prerequisites:
+- Python 3.8+
+- Node.js 14+
+- Java 11+
+- Docker (optional)
+
+### Backend:
+```bash
+cd backend
+pip install -r requirements.txt
+python app.py
