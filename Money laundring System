@@ -1,0 +1,104 @@
+About the Dataset:
+• Time and Date: Essential for tracking transaction chronology.
+
+• Sender and Receiver Account Details: Helps uncover behavioural patterns and complex banking connections.
+
+• Amount: Indicates transaction values to identify suspicious activities.
+
+• Payment Type: Includes various methods like credit card, debit card, cash, ACH transfers, cross-border, and cheque.
+
+• Sender and Receiver Bank Location: Pinpoints high-risk regions including Mexico, Turkey, Morocco, and the UAE.
+
+• Payment and Receiver Currency: Align with location features, adding complexity when mismatched.
+
+• 'Is Suspicious' Feature: Binary indicator differentiating normal from suspicious transactions.
+
+• Type: Classifies typologies, offering deeper insights.
+
+using pandas for data manipulation:
+
+# Import necessary libraries
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import StandardScaler
+
+# Load your dataset (replace with your actual dataset)
+df = pd.read_csv('transaction_data.csv')
+
+# Example structure for dataset columns
+# df = ['time', 'date', 'sender_account', 'receiver_account', 'amount', 'payment_type', 
+#       'sender_bank_location', 'receiver_bank_location', 'currency', 'is_suspicious', 'type']
+
+# Step 1: Preprocessing
+
+# Convert categorical columns like 'payment_type', 'sender_bank_location', 'receiver_bank_location' to numerical format
+categorical_columns = ['payment_type', 'sender_bank_location', 'receiver_bank_location', 'currency', 'type']
+numerical_columns = ['amount', 'time']  # Assume 'time' is already numeric or can be converted to numeric
+
+# Handle missing values using SimpleImputer
+imputer = SimpleImputer(strategy='most_frequent')  # For categorical columns
+df[categorical_columns] = df[categorical_columns].apply(lambda col: imputer.fit_transform(col.values.reshape(-1,1)))
+
+# Convert categorical features into numerical values using Label Encoding
+label_encoder = LabelEncoder()
+
+for col in categorical_columns:
+    df[col] = label_encoder.fit_transform(df[col])
+
+# Extract target variable
+X = df.drop(columns=['is_suspicious'])
+y = df['is_suspicious']
+
+# Step 2: Train/Test Split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Step 3: Model Selection - Random Forest Classifier (You can also use XGBoost, GradientBoosting, etc.)
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+
+# Step 4: Pipeline for Model Training
+# Scaling numerical columns
+numeric_transformer = Pipeline(steps=[
+    ('scaler', StandardScaler())])
+
+# Column Transformer to preprocess both numerical and categorical data
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('num', numeric_transformer, numerical_columns),
+        ('cat', 'passthrough', categorical_columns)
+    ])
+
+# Final Pipeline with preprocessing and model
+clf = Pipeline(steps=[('preprocessor', preprocessor),
+                       ('classifier', model)])
+
+# Step 5: Train the model
+clf.fit(X_train, y_train)
+
+# Step 6: Predict on test data
+y_pred = clf.predict(X_test)
+
+# Step 7: Evaluation - Display metrics
+print("Classification Report:")
+print(classification_report(y_test, y_pred))
+
+print("Confusion Matrix:")
+print(confusion_matrix(y_test, y_pred))
+
+# Additional Metrics
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+
+accuracy = accuracy_score(y_test, y_pred)
+precision = precision_score(y_test, y_pred)
+recall = recall_score(y_test, y_pred)
+f1 = f1_score(y_test, y_pred)
+
+print(f'Accuracy: {accuracy:.4f}')
+print(f'Precision: {precision:.4f}')
+print(f'Recall: {recall:.4f}')
+print(f'F1 Score: {f1:.4f}')
